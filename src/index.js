@@ -3,6 +3,7 @@ const path = require('path')
 const http = require('http')
 const socketio = require('socket.io')
 const Filter = require('bad-words')
+const {isRealString} = require('./utils/validater')
 const {generatemsg,generatelocation} = require('./utils/message')
 const {addUser,removeUser,getUser,getUsersInRoom} = require('./utils/users')
 const app = express()
@@ -31,7 +32,7 @@ io.on('connection',(socket)=>{
       const {error,user} = addUser({id:socket.id,username:username,room:room})
       console.log(user)
       if(error){
-          return callback('error')
+          return callback(error)
       }
         socket.join(user.room)
         socket.emit('message',generatemsg('Welcome!',' '))
@@ -49,18 +50,19 @@ io.on('connection',(socket)=>{
         if(filter.isProfane(message)){
             return callback('profane is not allowed')
         }
-        io.to(user.room).emit('message',generatemsg(message,user.username))
+        if(user && isRealString(message)){
+        io.to(user.room).emit('message',generatemsg(message,user.username))}
         callback()
     })
     socket.on('sendlocation',(coords,callback)=>{
         const user = getUser(socket.id)
       io.to(user.room).emit('locationmsg',generatelocation('https://www.google.com/maps/?q='+coords.latitude+','+coords.longitude,user.username))
-      callback('location shared')
+      callback('Location shared')
     })
     socket.on('disconnect',()=>{
         const user = removeUser(socket.id)
         if(user){
-        io.to(user.room).emit('message',generatemsg(user.username+' '+'is left',' '))
+        io.to(user.room).emit('message',generatemsg(user.username+' '+'is Left',' '))
 
         io.to(user.room).emit('roomdata',{
             room:user.room,

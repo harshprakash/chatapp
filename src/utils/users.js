@@ -1,12 +1,12 @@
 const users = []
 
 const addUser =(({id,username,room})=>{
-  username = username.trim().toLowerCase()
-  room = room.trim().toLowerCase()
+  username = username.trim()
+  room = room.trim()
 
   if(!username || !room){
       return {
-          error : "username and room is required"
+          error : "Username and Room is required"
       }
   }
 
@@ -17,7 +17,7 @@ const addUser =(({id,username,room})=>{
 
   if(existinguser){
       return{
-          error :"username is already exist"
+          error :"Username is already exist"
       }
   }
    
@@ -40,7 +40,7 @@ const getUser = (id) =>{
    return users.find((user)=>user.id===id)
 }
 const getUsersInRoom = (room) =>{
-    room=room.trim().toLowerCase()
+    room=room.trim()
     return users.filter((user)=>user.room===room)
 }
 
